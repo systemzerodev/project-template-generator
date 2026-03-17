@@ -1,56 +1,46 @@
 # 🚀 Project Template Generator
 
-Tool berbasis Python untuk membuat project baru secara otomatis menggunakan template.
-
-Cukup jalankan satu command → isi form → project langsung siap digunakan.
+Generate project in seconds with a simple command.
 
 ---
 
-## ✨ Features
-
-- ⚡ Generate project hanya dengan satu klik
-- 🧱 Struktur project otomatis
-- 🔁 Replace placeholder (`{{PROJECT_NAME}}`, dll)
-- 🖥️ UI sederhana (Tkinter)
-- 💻 CLI command: `create-project`
-- 📦 Bisa di-install dan digunakan di mana saja
-
----
-
-## 📦 Installation
-
-### 🔹 Install dari GitHub
+## ⚡ Quick Start (Recommended)
 
 ```bash
-pip install git+https://github.com/systemzerodev/project-template-generator.git
+pip install pipx && pipx ensurepath && pipx install git+https://github.com/systemzerodev/project-template-generator.git && create-project
 ```
 
 ---
 
-## 🚀 Usage
+## 🖥️ What You Get
 
-Jalankan command:
+- Instant project structure
+- Auto placeholder replacement
+- Simple UI (Tkinter)
+- Ready-to-use project folder
+
+---
+
+## 📸 Preview
+
+(Simple UI will appear after running the command)
+
+---
+
+## 🔧 Alternative (Manual Setup)
 
 ```bash
+python -m venv .venv
+.venv\Scripts\activate
+
+pip install git+https://github.com/systemzerodev/project-template-generator.git
+
 create-project
 ```
 
-Akan muncul UI:
-
-- Isi **Project Name**
-- Isi **Description**
-- Isi **Author**
-- Klik **Generate**
-
-Project akan otomatis dibuat di folder:
-
-```bash
-generated/
-```
-
 ---
 
-## 📁 Example Output
+## 📁 Output Example
 
 ```bash
 generated/
@@ -63,84 +53,13 @@ generated/
 
 ---
 
-## 🧠 How It Works
+## 📌 Notes
 
-1. Template diambil dari folder `template/`
-2. Semua placeholder diganti sesuai input user
-3. Project baru dibuat secara otomatis
-
----
-
-## 🛠️ Tech Stack
-
-- Python
-- Tkinter (UI)
-- setuptools (CLI & packaging)
+- Requires Python 3.8+
+- Works on Windows
 
 ---
 
-## 📌 Project Structure
+## ⭐ Author
 
-```bash
-project-template-generator/
-│
-├── project_generator/
-│   ├── generator.py
-│   ├── ui.py
-│   └── __init__.py
-│
-├── template/
-│   ├── README.md
-│   ├── main.py
-│   └── config/
-│       └── config.json
-│
-├── setup.py
-├── MANIFEST.in
-├── README.md
-└── LICENSE
-```
-
----
-
-## 🔧 Development Setup
-
-```bash
-git clone https://github.com/systemzerodev/project-template-generator.git
-cd project-template-generator
-
-python -m venv .venv
-.venv\Scripts\activate
-
-pip install .
-```
-
----
-
-## 🔮 Roadmap
-
-- [ ] Multi-template support (web, flutter, dll)
-- [ ] CLI mode tanpa UI
-- [ ] Auto open project di VS Code
-- [ ] Export ke .exe
-
----
-
-## 📄 License
-
-MIT License
-
----
-
-## 👤 Author
-
-Systemzerodev
-
----
-
-## ⭐ Notes
-
-Project ini dibuat untuk:
-
-- mempercepat workflow development
-- latihan membuat developer tools dari nol
+FullstackDev
