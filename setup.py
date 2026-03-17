@@ -7,15 +7,23 @@ setup(
     author="Systemzerodev",
     packages=find_packages(),
 
-    include_package_data=True,  # 🔥 penting untuk template & assets
+    # 🔥 penting untuk include file non-python
+    include_package_data=True,
 
-    install_requires=[],
-
+    # 🔥 CLI command
     entry_points={
         "console_scripts": [
             "create-project=project_generator.cli:main",
         ],
     },
 
+    # opsional tapi bagus
+    install_requires=[],
     python_requires=">=3.8",
+
+    # metadata tambahan
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+    ],
 )
