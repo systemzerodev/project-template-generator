@@ -3,7 +3,7 @@ import shutil
 import importlib.util
 
 
-# ===== PATH RESOLVER =====
+# ===== PATH RESOLVER (ANTI ERROR DI SEMUA ENV) =====
 def get_base_dir():
     spec = importlib.util.find_spec("project_generator")
     if spec and spec.origin:
@@ -16,7 +16,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
 OUTPUT_DIR = "generated"
 
 
-# ===== HELPER: DETECT TEXT FILE =====
+# ===== DETECT FILE TEXT / BINARY =====
 def is_text_file(file_path):
     try:
         with open(file_path, "rb") as f:
@@ -28,35 +28,48 @@ def is_text_file(file_path):
         return False
 
 
-# ===== REPLACE PLACEHOLDER (SAFE) =====
-def replace_placeholders(file_path, data):
-    if not is_text_file(file_path):
-        return  # skip binary files
-
-    # coba UTF-8 dulu
+# ===== SAFE READ FILE =====
+def read_file_safe(file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+            return f.read()
     except:
-        # fallback encoding Windows
         try:
             with open(file_path, "r", encoding="latin-1") as f:
-                content = f.read()
+                return f.read()
         except:
-            return  # skip kalau tetap gagal
+            return None
 
-    # replace
+
+# ===== SAFE WRITE FILE =====
+def write_file_safe(file_path, content):
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
+    except:
+        print(f"[SKIP WRITE] {file_path}")
+
+
+# ===== REPLACE PLACEHOLDER =====
+def replace_placeholders(file_path, data):
+    if not is_text_file(file_path):
+        return
+
+    content = read_file_safe(file_path)
+
+    if content is None:
+        print(f"[SKIP READ] {file_path}")
+        return
+
     for key, value in data.items():
         content = content.replace(f"{{{{{key.upper()}}}}}", value)
 
-    # tulis ulang pakai UTF-8
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
+    write_file_safe(file_path, content)
 
 
 # ===== MAIN GENERATOR =====
 def generate_project(project_name, description, author, template_name):
-    # ===== VALIDASI TEMPLATE DIR =====
+    # ===== VALIDASI TEMPLATE =====
     if not os.path.exists(TEMPLATE_DIR):
         raise Exception(f"Template directory tidak ditemukan:\n{TEMPLATE_DIR}")
 
@@ -75,19 +88,19 @@ def generate_project(project_name, description, author, template_name):
     output_path = os.path.join(OUTPUT_DIR, project_name)
 
     if os.path.exists(output_path):
-        raise Exception("Project sudah ada!")
+        raise Exception(f"Project '{project_name}' sudah ada!")
 
-    # copy template
+    # ===== COPY TEMPLATE =====
     shutil.copytree(template_path, output_path)
 
-    # data placeholder
+    # ===== DATA =====
     data = {
         "project_name": project_name,
         "description": description,
         "author": author,
     }
 
-    # replace semua file
+    # ===== PROCESS FILE =====
     for root, _, files in os.walk(output_path):
         for file in files:
             file_path = os.path.join(root, file)
