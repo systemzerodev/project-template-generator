@@ -12,3 +12,6 @@ dist/
 
 # Generated output
 generated/
+
+#VSCODE
+.vscode/

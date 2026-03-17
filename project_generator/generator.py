@@ -2,41 +2,38 @@ import os
 import shutil
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
 TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
-OUTPUT_DIR = os.path.join(BASE_DIR, "generated")
 
 
-def replace_placeholders(file_path, data):
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
+def generate_project(name, desc, author, template_name):
+    template_path = os.path.join(TEMPLATE_DIR, template_name)
 
-    for key, value in data.items():
-        content = content.replace(f"{{{{{key.upper()}}}}}", value)
+    if not os.path.exists(template_path):
+        raise Exception(f"Template '{template_name}' tidak ditemukan")
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
+    output_dir = os.path.join(os.getcwd(), "generated", name)
 
+    if os.path.exists(output_dir):
+        raise Exception("Project sudah ada")
 
-def generate_project(project_name, description, author):
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    shutil.copytree(template_path, output_dir)
 
-    output_path = os.path.join(OUTPUT_DIR, project_name)
-
-    if os.path.exists(output_path):
-        raise Exception("Project sudah ada!")
-
-    shutil.copytree(TEMPLATE_DIR, output_path)
-
-    data = {
-        "project_name": project_name,
-        "description": description,
-        "author": author
-    }
-
-    for root, _, files in os.walk(output_path):
+    for root, _, files in os.walk(output_dir):
         for file in files:
             file_path = os.path.join(root, file)
-            replace_placeholders(file_path, data)
 
-    return output_path
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                content = content.replace("{{PROJECT_NAME}}", name)
+                content = content.replace("{{DESCRIPTION}}", desc)
+                content = content.replace("{{AUTHOR}}", author)
+
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(content)
+
+            except:
+                pass
+
+    return output_dir
