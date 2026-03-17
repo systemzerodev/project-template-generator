@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import os
+import threading
 from project_generator.generator import generate_project
 
 
@@ -21,9 +22,35 @@ def open_folder():
         messagebox.showerror("Error", "Belum ada project yang dibuat")
 
 
-def create_project():
+def run_generation(name, desc, author):
     global last_project_path
 
+    try:
+        path = generate_project(name, desc, author)
+        last_project_path = path
+
+        # Stop loading
+        progress.stop()
+
+        update_status("Project created successfully!", "green")
+
+        # Aktifkan tombol
+        open_btn.config(state="normal", bg="#2196F3")
+
+        # Auto buka folder
+        os.startfile(path)
+
+        # Reset form
+        entry_name.delete(0, tk.END)
+        entry_desc.delete(0, tk.END)
+
+    except Exception as e:
+        progress.stop()
+        update_status("Error occurred", "red")
+        messagebox.showerror("Error", str(e))
+
+
+def create_project():
     name = entry_name.get()
     desc = entry_desc.get()
     author = entry_author.get()
@@ -33,38 +60,22 @@ def create_project():
         messagebox.showerror("Error", "Project name wajib diisi")
         return
 
-    try:
-        update_status("Generating project...", "orange")
+    # 🔥 Start loading animation
+    update_status("Generating project...", "orange")
+    progress.start(10)
 
-        path = generate_project(name, desc, author)
-        last_project_path = path
-
-        update_status("Project created successfully!", "green")
-
-        messagebox.showinfo(
-            "Success",
-            f"Project berhasil dibuat di:\n{path}"
-        )
-
-        # Auto buka folder
-        os.startfile(path)
-
-        # Reset form
-        entry_name.delete(0, tk.END)
-        entry_desc.delete(0, tk.END)
-
-        # Aktifkan tombol open folder
-        open_btn.config(state="normal", bg="#2196F3")
-
-    except Exception as e:
-        update_status("Error occurred", "red")
-        messagebox.showerror("Error", str(e))
+    # 🔥 Run di thread
+    threading.Thread(
+        target=run_generation,
+        args=(name, desc, author),
+        daemon=True
+    ).start()
 
 
 # App
 app = tk.Tk()
 app.title("Project Generator")
-app.geometry("400x380")
+app.geometry("400x420")
 app.resizable(False, False)
 
 frame = tk.Frame(app, padx=20, pady=20)
@@ -77,7 +88,7 @@ tk.Label(
     font=("Arial", 14, "bold")
 ).pack(pady=(0, 10))
 
-# Input fields
+# Input
 tk.Label(frame, text="Project Name").pack(anchor="w")
 entry_name = tk.Entry(frame)
 entry_name.pack(fill="x", pady=5)
@@ -91,7 +102,7 @@ entry_author = tk.Entry(frame)
 entry_author.pack(fill="x", pady=5)
 entry_author.insert(0, "FullstackDev")
 
-# Generate button
+# Generate Button
 tk.Button(
     frame,
     text="Generate Project",
@@ -102,27 +113,33 @@ tk.Button(
     pady=8
 ).pack(pady=10, fill="x")
 
-# Open folder button
+# Open Folder Button
 open_btn = tk.Button(
     frame,
     text="Open Last Project Folder",
     command=open_folder,
     bg="#cccccc",
     fg="white",
-    activebackground="#1976D2",
-    pady=8,
-    state="disabled"
+    state="disabled",
+    pady=8
 )
 open_btn.pack(pady=5, fill="x")
 
-# 🔥 STATUS LABEL (INI YANG BARU)
+# 🔥 PROGRESS BAR
+progress = ttk.Progressbar(
+    frame,
+    mode="indeterminate"
+)
+progress.pack(fill="x", pady=10)
+
+# Status
 status_label = tk.Label(
     frame,
     text="Ready",
     fg="#333",
     anchor="w"
 )
-status_label.pack(fill="x", pady=(10, 0))
+status_label.pack(fill="x")
 
 
 def run():
