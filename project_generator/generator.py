@@ -1,39 +1,66 @@
 import os
 import shutil
+import importlib.util
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# ===== PATH RESOLVER (ANTI ERROR) =====
+def get_base_dir():
+    spec = importlib.util.find_spec("project_generator")
+    if spec and spec.origin:
+        return os.path.dirname(spec.origin)
+    return os.path.dirname(__file__)
+
+BASE_DIR = get_base_dir()
 TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
+OUTPUT_DIR = "generated"
 
 
-def generate_project(name, desc, author, template_name):
+# ===== CORE =====
+def replace_placeholders(file_path, data):
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    for key, value in data.items():
+        content = content.replace(f"{{{{{key.upper()}}}}}", value)
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def generate_project(project_name, description, author, template_name):
+    # ===== VALIDASI TEMPLATE DIR =====
+    if not os.path.exists(TEMPLATE_DIR):
+        raise Exception(f"Template directory tidak ditemukan:\n{TEMPLATE_DIR}")
+
     template_path = os.path.join(TEMPLATE_DIR, template_name)
 
     if not os.path.exists(template_path):
-        raise Exception(f"Template '{template_name}' tidak ditemukan")
+        available = os.listdir(TEMPLATE_DIR)
+        raise Exception(
+            f"Template '{template_name}' tidak ditemukan.\n"
+            f"Available: {available}"
+        )
 
-    output_dir = os.path.join(os.getcwd(), "generated", name)
+    # ===== BUAT OUTPUT =====
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    if os.path.exists(output_dir):
-        raise Exception("Project sudah ada")
+    output_path = os.path.join(OUTPUT_DIR, project_name)
 
-    shutil.copytree(template_path, output_dir)
+    if os.path.exists(output_path):
+        raise Exception("Project sudah ada!")
 
-    for root, _, files in os.walk(output_dir):
+    shutil.copytree(template_path, output_path)
+
+    # ===== DATA =====
+    data = {
+        "project_name": project_name,
+        "description": description,
+        "author": author,
+    }
+
+    # ===== REPLACE =====
+    for root, _, files in os.walk(output_path):
         for file in files:
             file_path = os.path.join(root, file)
+            replace_placeholders(file_path, data)
 
-            try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-
-                content = content.replace("{{PROJECT_NAME}}", name)
-                content = content.replace("{{DESCRIPTION}}", desc)
-                content = content.replace("{{AUTHOR}}", author)
-
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(content)
-
-            except:
-                pass
-
-    return output_dir
+    return output_path

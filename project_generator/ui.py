@@ -1,19 +1,35 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
 import os
 import json
 import threading
+import ctypes
+import importlib.util
+import tkinter as tk
+from tkinter import ttk, messagebox
+
 from project_generator.generator import generate_project
 
-# ===== PATH =====
-BASE_DIR = os.path.dirname(__file__)
+# ===== FIX TASKBAR ICON =====
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("project.generator.app")
+
+
+# ===== PATH RESOLVER =====
+def get_base_dir():
+    spec = importlib.util.find_spec("project_generator")
+    if spec and spec.origin:
+        return os.path.dirname(spec.origin)
+    return os.path.dirname(__file__)
+
+BASE_DIR = get_base_dir()
 TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 
 last_project_path = None
 
 
 # ===== TEMPLATE =====
 def get_templates():
+    if not os.path.exists(TEMPLATE_DIR):
+        return []
     return [
         name for name in os.listdir(TEMPLATE_DIR)
         if os.path.isdir(os.path.join(TEMPLATE_DIR, name))
@@ -36,8 +52,8 @@ def update_status(text, color="#333"):
     app.update_idletasks()
 
 
-def set_loading(is_loading):
-    if is_loading:
+def set_loading(state):
+    if state:
         generate_btn.config(state="disabled")
         open_btn.config(state="disabled")
         progress.start(10)
@@ -59,9 +75,8 @@ def run_generation(name, desc, author, template):
         path = generate_project(name, desc, author, template)
         last_project_path = path
 
-        update_status("Project created successfully 🎉", "green")
-
-        open_btn.config(state="normal", bg="#2196F3")
+        update_status("Project created 🎉", "green")
+        open_btn.config(state="normal")
 
         os.startfile(path)
 
@@ -69,7 +84,7 @@ def run_generation(name, desc, author, template):
         entry_desc.delete(0, tk.END)
 
     except Exception as e:
-        update_status("Something went wrong ❌", "red")
+        update_status("Error ❌", "red")
         messagebox.showerror("Error", str(e))
 
     finally:
@@ -83,11 +98,10 @@ def create_project():
     template = template_var.get()
 
     if not name:
-        update_status("Project name is required ⚠️", "red")
         messagebox.showerror("Error", "Project name wajib diisi")
         return
 
-    update_status("Generating project... ⏳", "orange")
+    update_status("Generating... ⏳", "orange")
     set_loading(True)
 
     threading.Thread(
@@ -103,23 +117,27 @@ def on_template_change(event=None):
     template_desc.config(text=meta["description"])
 
 
-# ===== UI =====
+# ===== UI INIT =====
 app = tk.Tk()
 app.title("Project Generator")
 app.geometry("420x500")
 app.resizable(False, False)
 
+# ICON
+icon_path = os.path.join(ASSETS_DIR, "icon.ico")
+if os.path.exists(icon_path):
+    try:
+        app.iconbitmap(icon_path)
+    except:
+        pass
+
+
+# ===== LAYOUT =====
 frame = tk.Frame(app, padx=20, pady=20)
 frame.pack(fill="both", expand=True)
 
-# Title
-tk.Label(
-    frame,
-    text="Project Generator",
-    font=("Arial", 16, "bold")
-).pack(pady=(0, 10))
+tk.Label(frame, text="Project Generator", font=("Arial", 16, "bold")).pack(pady=10)
 
-# Inputs
 tk.Label(frame, text="Project Name").pack(anchor="w")
 entry_name = tk.Entry(frame)
 entry_name.pack(fill="x", pady=5)
@@ -130,10 +148,10 @@ entry_desc.pack(fill="x", pady=5)
 
 tk.Label(frame, text="Author").pack(anchor="w")
 entry_author = tk.Entry(frame)
-entry_author.pack(fill="x", pady=5)
 entry_author.insert(0, "Systemzerodev")
+entry_author.pack(fill="x", pady=5)
 
-# Template Dropdown
+# TEMPLATE
 tk.Label(frame, text="Template").pack(anchor="w")
 
 template_var = tk.StringVar()
@@ -148,51 +166,24 @@ if templates:
 template_dropdown.pack(fill="x", pady=5)
 template_dropdown.bind("<<ComboboxSelected>>", on_template_change)
 
-# Template Description
-template_desc = tk.Label(
-    frame,
-    fg="#666",
-    wraplength=360,
-    justify="left"
-)
-template_desc.pack(fill="x", pady=(5, 10))
+template_desc = tk.Label(frame, fg="#666", wraplength=360, justify="left")
+template_desc.pack(fill="x", pady=5)
 
 on_template_change()
 
-# Buttons
-generate_btn = tk.Button(
-    frame,
-    text="Create Project",
-    command=create_project,
-    bg="#4CAF50",
-    fg="white",
-    activebackground="#45a049",
-    pady=10
-)
+# BUTTONS
+generate_btn = tk.Button(frame, text="Create Project", command=create_project, bg="#4CAF50", fg="white")
 generate_btn.pack(fill="x", pady=10)
 
-open_btn = tk.Button(
-    frame,
-    text="Open Folder",
-    command=open_folder,
-    state="disabled",
-    bg="#cccccc",
-    fg="white",
-    pady=10
-)
+open_btn = tk.Button(frame, text="Open Folder", command=open_folder, state="disabled")
 open_btn.pack(fill="x")
 
-# Progress Bar
+# PROGRESS
 progress = ttk.Progressbar(frame, mode="indeterminate")
 progress.pack(fill="x", pady=10)
 
-# Status
-status_label = tk.Label(
-    frame,
-    text="Ready",
-    anchor="w",
-    fg="#333"
-)
+# STATUS
+status_label = tk.Label(frame, text="Ready", anchor="w")
 status_label.pack(fill="x")
 
 

@@ -1,37 +1,33 @@
-# 🚀 Project Template Generator
+🚀 Project Template Generator
 
 Generate project in seconds with a simple command.
 
 ---
 
-## ⚡ Quick Start
+⚡ Quick Start
 
-### 1. Install pipx (one-time setup)
+1. Install pipx (one-time setup)
 
-```bash
 pip install pipx
 pipx ensurepath
-```
+
+«⚠️ Restart your terminal after running "pipx ensurepath"»
 
 ---
 
-### 2. Install Project Generator
+2. Install Project Generator
 
-```bash
 pipx install git+https://github.com/systemzerodev/project-template-generator.git
-```
 
 ---
 
-### 3. Run
+3. Run the Tool
 
-```bash
 create-project
-```
 
 ---
 
-## 🧠 How It Works
+🧠 How It Works
 
 - pipx creates an isolated environment automatically
 - No need to manage virtual environments
@@ -39,9 +35,9 @@ create-project
 
 ---
 
-## 📸 What Happens Next?
+📦 What Happens Next?
 
-After running `create-project`:
+After running "create-project":
 
 - A simple UI will appear
 - Fill in your project details
@@ -49,38 +45,34 @@ After running `create-project`:
 
 ---
 
-## 📁 Output Example
+📁 Output Example
 
-```bash
 generated/
 └── my_project/
-    ├── README.md
-    ├── main.py
-    └── config/
-        └── config.json
-```
+├── README.md
+├── main.py
+└── config/
+└── config.json
 
 ---
 
-## 🔧 Alternative (Manual Setup)
+🔧 Alternative (Manual Setup)
 
-```bash
 python -m venv .venv
 .venv\Scripts\activate
 
 pip install git+https://github.com/systemzerodev/project-template-generator.git
 
 create-project
-```
 
 ---
 
-## 📌 Requirements
+📌 Requirements
 
 - Python 3.8+
 
 ---
 
-## ⭐ Author
+👨‍💻 Author
 
 Systemzerodev
