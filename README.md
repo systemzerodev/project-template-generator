@@ -22,7 +22,7 @@ Cukup jalankan satu command → isi form → project langsung siap digunakan.
 ### 🔹 Install dari GitHub
 
 ```bash
-pip install git+https://github.com/USERNAME/project-template-generator.git
+pip install git+https://github.com/systemzerodev/project-template-generator.git
 ```
 
 ---
