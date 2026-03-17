@@ -1,4 +1,14 @@
-__pychace__/
+# Python
+__pycache__/
 *.pyc
-.env
-test-project/
+
+# Virtual env
+.venv/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Generated output
+generated/
