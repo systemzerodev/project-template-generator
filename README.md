@@ -4,39 +4,48 @@ Generate project in seconds with a simple command.
 
 ---
 
-## ⚡ Quick Start (Recommended)
+## ⚡ Quick Start
+
+### 1. Install pipx (one-time setup)
 
 ```bash
-pip install pipx && pipx ensurepath && pipx install git+https://github.com/systemzerodev/project-template-generator.git && create-project
+pip install pipx
+pipx ensurepath
 ```
 
 ---
 
-## 🖥️ What You Get
-
-- Instant project structure
-- Auto placeholder replacement
-- Simple UI (Tkinter)
-- Ready-to-use project folder
-
----
-
-## 📸 Preview
-
-(Simple UI will appear after running the command)
-
----
-
-## 🔧 Alternative (Manual Setup)
+### 2. Install Project Generator
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+pipx install git+https://github.com/systemzerodev/project-template-generator.git
+```
 
-pip install git+https://github.com/systemzerodev/project-template-generator.git
+---
 
+### 3. Run
+
+```bash
 create-project
 ```
+
+---
+
+## 🧠 How It Works
+
+- pipx creates an isolated environment automatically
+- No need to manage virtual environments
+- Command is available globally after install
+
+---
+
+## 📸 What Happens Next?
+
+After running `create-project`:
+
+- A simple UI will appear
+- Fill in your project details
+- Your project will be generated instantly
 
 ---
 
@@ -53,13 +62,25 @@ generated/
 
 ---
 
-## 📌 Notes
+## 🔧 Alternative (Manual Setup)
 
-- Requires Python 3.8+
-- Works on Windows
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+
+pip install git+https://github.com/systemzerodev/project-template-generator.git
+
+create-project
+```
+
+---
+
+## 📌 Requirements
+
+- Python 3.8+
 
 ---
 
 ## ⭐ Author
 
-FullstackDev
+Systemzerodev
