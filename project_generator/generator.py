@@ -4,7 +4,7 @@ import importlib.util
 
 
 # ================================
-# PATH RESOLVER (WORK DI SEMUA ENV)
+# PATH RESOLVER (AMAN DI SEMUA ENV)
 # ================================
 def get_base_dir():
     spec = importlib.util.find_spec("project_generator")
@@ -19,69 +19,48 @@ OUTPUT_DIR = "generated"
 
 
 # ================================
-# CEK FILE TEXT ATAU BINARY
+# FILE YANG BOLEH DIPROSES
 # ================================
-def is_text_file(file_path):
-    try:
-        with open(file_path, "rb") as f:
-            chunk = f.read(1024)
-            if b"\x00" in chunk:
-                return False
-        return True
-    except:
-        return False
+ALLOWED_EXTENSIONS = {
+    ".py", ".txt", ".md", ".json", ".rpy",
+    ".html", ".js", ".css"
+}
 
 
 # ================================
-# READ FILE (ANTI ERROR ENCODING)
+# REPLACE PLACEHOLDER (SAFE)
 # ================================
-def read_file_safe(file_path):
+def replace_placeholders(file_path, data):
+    _, ext = os.path.splitext(file_path)
+
+    # skip file yang bukan text penting
+    if ext.lower() not in ALLOWED_EXTENSIONS:
+        return
+
+    # baca file (toleransi error)
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            return f.read()
+            content = f.read()
     except:
-        try:
-            with open(file_path, "r", encoding="latin-1", errors="ignore") as f:
-                return f.read()
-        except:
-            print(f"[SKIP READ] {file_path}")
-            return None
+        return
 
+    # replace placeholder
+    for key, value in data.items():
+        content = content.replace(f"{{{{{key.upper()}}}}}", value)
 
-# ================================
-# WRITE FILE (SAFE)
-# ================================
-def write_file_safe(file_path, content):
+    # tulis ulang
     try:
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
     except:
-        print(f"[SKIP WRITE] {file_path}")
-
-
-# ================================
-# REPLACE PLACEHOLDER
-# ================================
-def replace_placeholders(file_path, data):
-    if not is_text_file(file_path):
-        return
-
-    content = read_file_safe(file_path)
-
-    if content is None:
-        return
-
-    for key, value in data.items():
-        content = content.replace(f"{{{{{key.upper()}}}}}", value)
-
-    write_file_safe(file_path, content)
+        pass
 
 
 # ================================
 # MAIN GENERATOR
 # ================================
 def generate_project(project_name, description, author, template_name):
-    # === VALIDASI TEMPLATE DIR ===
+    # validasi template
     if not os.path.exists(TEMPLATE_DIR):
         raise Exception(f"Template directory tidak ditemukan:\n{TEMPLATE_DIR}")
 
@@ -93,7 +72,7 @@ def generate_project(project_name, description, author, template_name):
             f"Template '{template_name}' tidak ditemukan.\nAvailable: {available}"
         )
 
-    # === OUTPUT DIR ===
+    # buat folder output
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     output_path = os.path.join(OUTPUT_DIR, project_name)
@@ -101,17 +80,17 @@ def generate_project(project_name, description, author, template_name):
     if os.path.exists(output_path):
         raise Exception(f"Project '{project_name}' sudah ada!")
 
-    # === COPY TEMPLATE ===
+    # copy template
     shutil.copytree(template_path, output_path)
 
-    # === DATA PLACEHOLDER ===
+    # data placeholder
     data = {
         "project_name": project_name,
         "description": description,
         "author": author,
     }
 
-    # === PROCESS FILE ===
+    # proses semua file
     for root, _, files in os.walk(output_path):
         for file in files:
             file_path = os.path.join(root, file)
