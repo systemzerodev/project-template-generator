@@ -1,17 +1,8 @@
-# Python
+.venv/
 __pycache__/
 *.pyc
-
-# Virtual env
-.venv/
-
-# Build artifacts
 build/
 dist/
 *.egg-info/
-
-# Generated output
 generated/
-
-#VSCODE
 .vscode/
